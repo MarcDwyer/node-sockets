@@ -2,9 +2,9 @@ import WebSocket from "ws";
 import { BODYCHANGE, INITDATA, WSBODYCHANGE } from "./shared-vars";
 import { MockData } from "./main";
 
-type Payload = {
+type Data = {
   type: string;
-  data: string;
+  payload: any;
 };
 // type Hub = {
 //   [room: string]: WebSocket;
@@ -16,7 +16,7 @@ export const getWsServer = (mockData: MockData): WebSocket.Server => {
   wss.on("connection", ws => {
     ws.send(JSON.stringify({ type: INITDATA, payload: mockData }));
     ws.on("message", (data: string) => {
-      const { type, payload } = JSON.parse(data);
+      const { type, payload }: Data = JSON.parse(data);
       console.log({ type, payload });
       switch (type) {
         case BODYCHANGE:

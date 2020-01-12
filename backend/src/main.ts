@@ -22,14 +22,11 @@ const mockData: MockData = {
   author: "Marc Dwyer"
 };
 
-async function main() {
-  try {
-    setRoutes(app);
-    const wss = await getWsServer(mockData);
-    app.listen(PORT, () => console.log(`Listening on ${PORT}`));
-  } catch (err) {
-    console.error(err);
-  }
+function main() {
+  setRoutes(app);
+  const wss = getWsServer(mockData);
+  console.log(typeof wss.clients);
+  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 
 main();
