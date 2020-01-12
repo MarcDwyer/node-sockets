@@ -1,35 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
+import { MockData } from "./data-types/data";
+import MyReducer, { Payload, State } from "./reducer/reducer";
 import "./App.css";
+import { BODYCHANGE } from "./shared-vars";
 
-const useSocket = (url: string): WebSocket | null => {
-  console.log(url);
-  const [socket, setSocket] = useState<null | WebSocket>(null);
-  useEffect(() => {
-    setSocket(new WebSocket(url));
-  }, [url]);
-  return socket;
-};
 const App: React.FC = () => {
-  const url = `ws://${document.location.hostname}:5000`;
-  const socket = useSocket(url);
-
-  useEffect(() => {
-    if (socket) {
-      socket.onopen = function(e) {
-        console.log(e);
-      };
-      socket.addEventListener("message", ({ data }) => {
-        console.log(data);
-      });
-      setTimeout(
-        () => socket.send("Yo bro papa bless from the frontend"),
-        5500
-      );
-    }
+  const [{ socket, mockData }, dispatch] = useReducer<
+    React.Reducer<State, Payload>
+  >(MyReducer, {
+    socket: new WebSocket(`ws://${document.location.hostname}:5000`),
+    mockData: null
   });
+  useEffect(() => {
+    socket.addEventListener("message", ({ data }: any) => {
+      const parsed = JSON.parse(data);
+      console.log(parsed);
+      dispatch(parsed);
+    });
+  }, []);
   return (
     <div>
-      <span>hello</span>
+      {mockData && (
+        <textarea
+          name="main"
+          id=""
+          cols={130}
+          rows={75}
+          value={mockData.body}
+          onChange={e => {
+            dispatch({ type: BODYCHANGE, payload: e.target.value });
+            console.log(e.target.value);
+            socket.send(
+              JSON.stringify({ type: BODYCHANGE, payload: e.target.value })
+            );
+          }}
+        />
+      )}
     </div>
   );
 };

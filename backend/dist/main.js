@@ -19,13 +19,22 @@ const websocket_1 = require("./websocket");
 const app = express_1.default();
 const PORT = 5001;
 app.use(cors_1.default());
+const mockData = {
+    id: 12345,
+    title: "random title",
+    body: "hello this is a body papa bless",
+    author: "Marc Dwyer"
+};
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        routes_1.setRoutes(app);
-        const ws = yield websocket_1.getWebSocket();
-        ws.send("s8 got was good");
-        ws.on("message", (msg) => console.log(msg));
-        app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+        try {
+            routes_1.setRoutes(app);
+            const wss = yield websocket_1.getWsServer(mockData);
+            app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+        }
+        catch (err) {
+            console.error(err);
+        }
     });
 }
 main();
