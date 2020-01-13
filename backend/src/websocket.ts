@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { BODYCHANGE, INITDATA, WSBODYCHANGE } from "./shared-vars";
-import { MockData } from "./main";
+import { PData } from "./main";
 import { debounce } from "./helper-funcs";
 
 type Data = {
@@ -14,7 +14,7 @@ type Data = {
 const doSomething = () => {
   console.log("balls");
 };
-export const getWsServer = (mockData: MockData): WebSocket.Server => {
+export const getWsServer = (mockData: PData): WebSocket.Server => {
   const wss = new WebSocket.Server({ port: 5000 });
   wss.on("connection", ws => {
     ws.send(JSON.stringify({ type: INITDATA, payload: mockData }));

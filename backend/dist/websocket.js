@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ws_1 = __importDefault(require("ws"));
 const shared_vars_1 = require("./shared-vars");
-const helper_funcs_1 = require("./helper-funcs");
 // type Hub = {
 //   [room: string]: WebSocket;
 // };
@@ -22,7 +21,6 @@ exports.getWsServer = (mockData) => {
             switch (type) {
                 case shared_vars_1.BODYCHANGE:
                     mockData.body = payload;
-                    helper_funcs_1.debounce(doSomething, 5500)();
                     wss.clients.forEach(client => {
                         if (client !== ws && client.readyState === ws_1.default.OPEN) {
                             client.send(JSON.stringify({ type: shared_vars_1.BODYCHANGE, payload: mockData.body }));
