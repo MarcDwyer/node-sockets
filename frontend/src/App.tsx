@@ -23,7 +23,6 @@ const App: React.FC = () => {
       {mockData && (
         <textarea
           name="main"
-          id=""
           cols={130}
           rows={75}
           value={mockData.body}

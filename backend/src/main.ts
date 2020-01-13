@@ -1,4 +1,3 @@
-import WebSocket from "ws";
 import express from "express";
 import cors from "cors";
 import { setRoutes } from "./routes";
@@ -25,7 +24,6 @@ const mockData: MockData = {
 function main() {
   setRoutes(app);
   const wss = getWsServer(mockData);
-  console.log(typeof wss.clients);
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 

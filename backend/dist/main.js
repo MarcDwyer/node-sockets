@@ -19,7 +19,6 @@ const mockData = {
 function main() {
     routes_1.setRoutes(app);
     const wss = websocket_1.getWsServer(mockData);
-    console.log(typeof wss.clients);
     app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 main();
