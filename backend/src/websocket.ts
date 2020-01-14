@@ -3,6 +3,7 @@ import { INITDATA, ROOMCHANGE, PROJECTDATA } from "./shared-vars";
 import { PData } from "./main";
 import { Hub } from "./hub";
 import { stringifyMe, parseMe } from "./helper-funcs";
+import uuid from "uuid";
 
 interface PayloadWS {
   type: string;
@@ -15,6 +16,7 @@ interface PayloadWS {
 }
 interface MySocket extends WebSocket {
   room_id?: string;
+  id: string;
 }
 class WsServer {
   private data: PData;
@@ -27,14 +29,15 @@ class WsServer {
   }
   private createWSS(): WebSocket.Server {
     const wss = new WebSocket.Server({ port: 5000 });
-    wss.on("connection", (ws, req) => {
+    wss.on("connection", (ws: MySocket, req) => {
+      ws.id = uuid();
       ws.send(stringifyMe({ type: INITDATA, payload: this.data }));
-      this.attachMessageListener(ws, req.connection.remoteAddress);
+      this.attachMessageListener(ws);
       this.handleDisconnect(ws);
     });
     return wss;
   }
-  private attachMessageListener(ws: MySocket, ip: string) {
+  private attachMessageListener(ws: MySocket) {
     ws.on("message", (data: string) => {
       const { type, payload }: PayloadWS = JSON.parse(data);
       switch (type) {
@@ -42,9 +45,9 @@ class WsServer {
           const { room_id } = payload;
           if (payload.prevData) {
             const { prev_room_id } = payload.prevData;
-            this.hub.removeFromRoom(prev_room_id, ip);
+            this.hub.removeFromRoom(prev_room_id, ws.id);
           }
-          this.hub.addToRoom(room_id, ip, ws);
+          this.hub.addToRoom(room_id, ws.id, ws);
           ws.room_id = room_id;
           ws.send(
             stringifyMe({
@@ -57,7 +60,10 @@ class WsServer {
   }
   private handleDisconnect(ws: MySocket) {
     ws.on("close", () => {
-      console.log(ws.room_id || "no id" + " disconnected");
+      if (ws.room_id) {
+        const { room_id, id } = ws;
+        this.hub.removeFromRoom(room_id, id);
+      }
     });
   }
 }
