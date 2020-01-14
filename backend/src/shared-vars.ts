@@ -1,3 +1,5 @@
 export const BODYCHANGE = "bodychange",
   INITDATA = "initdata",
-  WSBODYCHANGE = "wsbodychange";
+  WSBODYCHANGE = "wsbodychange",
+  ROOMCHANGE = "roomchange",
+  PROJECTDATA = "projectdata";

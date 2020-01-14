@@ -1,11 +1,7 @@
-export const debounce = (func: Function, delay: number) => {
-  let timeout: NodeJS.Timeout;
-  console.log("lol wtf");
-  return function() {
-    console.log("shit");
-    const args = arguments,
-      ctx = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(ctx, args), delay);
-  };
+export const stringifyMe = (data: any): string => {
+  return JSON.stringify(data);
+};
+
+export const parseMe = (data: string): any => {
+  return JSON.parse(data);
 };

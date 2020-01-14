@@ -1,37 +1,65 @@
 import WebSocket from "ws";
-import { BODYCHANGE, INITDATA, WSBODYCHANGE } from "./shared-vars";
+import { INITDATA, ROOMCHANGE, PROJECTDATA } from "./shared-vars";
 import { PData } from "./main";
-import { debounce } from "./helper-funcs";
+import { Hub } from "./hub";
+import { stringifyMe, parseMe } from "./helper-funcs";
 
-type Data = {
+interface PayloadWS {
   type: string;
-  payload: any;
-};
-// type Hub = {
-//   [room: string]: WebSocket;
-// };
-// const hub = {};
-const doSomething = () => {
-  console.log("balls");
-};
-export const getWsServer = (mockData: PData): WebSocket.Server => {
-  const wss = new WebSocket.Server({ port: 5000 });
-  wss.on("connection", ws => {
-    ws.send(JSON.stringify({ type: INITDATA, payload: mockData }));
+  payload: {
+    room_id: string;
+    prevData?: {
+      prev_room_id: string;
+    };
+  };
+}
+interface MySocket extends WebSocket {
+  room_id?: string;
+}
+class WsServer {
+  private data: PData;
+  private hub: Hub;
+  public readonly wss: WebSocket.Server;
+  constructor(data: PData, hub: Hub) {
+    this.data = data;
+    this.hub = hub;
+    this.wss = this.createWSS();
+  }
+  private createWSS(): WebSocket.Server {
+    const wss = new WebSocket.Server({ port: 5000 });
+    wss.on("connection", (ws, req) => {
+      ws.send(stringifyMe({ type: INITDATA, payload: this.data }));
+      this.attachMessageListener(ws, req.connection.remoteAddress);
+      this.handleDisconnect(ws);
+    });
+    return wss;
+  }
+  private attachMessageListener(ws: MySocket, ip: string) {
     ws.on("message", (data: string) => {
-      const { type, payload }: Data = JSON.parse(data);
+      const { type, payload }: PayloadWS = JSON.parse(data);
       switch (type) {
-        case BODYCHANGE:
-          mockData.body = payload;
-          wss.clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-              client.send(
-                JSON.stringify({ type: BODYCHANGE, payload: mockData.body })
-              );
-            }
-          });
+        case ROOMCHANGE:
+          const { room_id } = payload;
+          if (payload.prevData) {
+            const { prev_room_id } = payload.prevData;
+            this.hub.removeFromRoom(prev_room_id, ip);
+          }
+          this.hub.addToRoom(room_id, ip, ws);
+          ws.room_id = room_id;
+          ws.send(
+            stringifyMe({
+              type: PROJECTDATA,
+              payload: this.data[room_id]
+            })
+          );
       }
     });
-  });
-  return wss;
-};
+  }
+  private handleDisconnect(ws: MySocket) {
+    ws.on("close", () => {
+      console.log(ws.room_id || "no id" + " disconnected");
+    });
+  }
+}
+
+export default WsServer;
