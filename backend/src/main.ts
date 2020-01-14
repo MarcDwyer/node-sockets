@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { setRoutes } from "./routes";
-import WsServer from "./websocket";
+import { getWs } from "./websocket";
 import uuid from "uuid";
 import { setHub } from "./hub";
 
@@ -38,7 +38,7 @@ const mockData: PData = {
 function main() {
   setRoutes(app);
   const hub = setHub(mockData);
-  const wss = new WsServer(mockData, hub);
+  const wss = getWs(mockData, hub);
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 

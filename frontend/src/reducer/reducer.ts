@@ -32,6 +32,7 @@ export type State = {
   socket: WebSocket;
 };
 function reducer(state: State, { payload, type }: Payload) {
+  console.log({ payload, type });
   switch (type) {
     case INITDATA:
       return { ...state, project_data: payload };

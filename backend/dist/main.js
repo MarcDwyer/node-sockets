@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const routes_1 = require("./routes");
-const websocket_1 = __importDefault(require("./websocket"));
+const websocket_1 = require("./websocket");
 const uuid_1 = __importDefault(require("uuid"));
 const hub_1 = require("./hub");
 const app = express_1.default();
@@ -30,7 +30,7 @@ const mockData = {
 function main() {
     routes_1.setRoutes(app);
     const hub = hub_1.setHub(mockData);
-    const wss = new websocket_1.default(mockData, hub);
+    const wss = websocket_1.getWs(mockData, hub);
     app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 main();

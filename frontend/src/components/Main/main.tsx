@@ -3,19 +3,21 @@ import MyReducer, { State, Payload } from "../../reducer/reducer";
 import { POSTCHANGE } from "../../shared-vars";
 
 const Main = () => {
-  const [{ project_data, socket, selected_post }, dispatch] = useReducer<
-    React.Reducer<State, Payload>
-  >(MyReducer, {
-    project_data: null,
-    selected_post: null,
-    socket: new WebSocket(`ws://${document.location.hostname}:5000`)
-  });
+  const [state, dispatch] = useReducer<React.Reducer<State, Payload>>(
+    MyReducer,
+    {
+      project_data: null,
+      selected_post: null,
+      socket: new WebSocket(`ws://${document.location.hostname}:5000`)
+    }
+  );
+  const { project_data, socket, selected_post } = state;
   useEffect(() => {
     socket.addEventListener("message", ({ data }) =>
       dispatch(JSON.parse(data))
     );
   }, []);
-  console.log(project_data);
+  console.log(state);
   return (
     <div className="app">
       {project_data &&
