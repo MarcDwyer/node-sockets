@@ -34,7 +34,6 @@ const Main = () => {
         })}
       {project_data && selected_post && (
         <textarea
-          id=""
           cols={30}
           rows={10}
           value={project_data[selected_post].body}

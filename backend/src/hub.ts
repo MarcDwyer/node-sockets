@@ -7,7 +7,7 @@ interface HubType {
 }
 
 export class Hub {
-  private rooms: HubType;
+  public rooms: HubType;
   constructor(rooms: HubType) {
     this.rooms = rooms;
   }
